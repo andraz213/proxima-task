@@ -13,12 +13,24 @@ export class ProductService {
     constructor(@InjectModel('Product') private readonly productModel: Model<Product>) {}
 
     async createProduct(name: string, price: number, available: boolean) {
-        const prod = new this.productModel({name, price, available});
+        var prod;
+        try {
+            prod = new this.productModel({name, price, available});
+        }catch(error){
+            throw new BadRequestException();
+        }
         return await prod.save();
     }
 
     async getAllProducts(): Promise<Product[]> {
-        const products = await this.productModel.find().exec();
+        var products;
+        try {
+            products = await this.productModel.find().exec();
+        }catch(error){
+            throw new NotFoundException();
+        }
+
+        // reformat output to match the criteria
         return products.map((prod) => ({
             id: prod.id,
             name: prod.name,
@@ -35,10 +47,12 @@ export class ProductService {
         } catch (error) {
             throw new BadRequestException();
         }
+
         if (!prod) {
             throw new NotFoundException();
         }
 
+        // reformat output to match the criteria
         return {
             id: prod.id,
             name: prod.name,
