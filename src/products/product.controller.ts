@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -20,17 +21,17 @@ export class ProductController {
   }
 
   @Post()
-  async postProduct(
-    @Body('name') prodName: string,
-    @Body('price') prodPrice: number,
-    @Body('available') prodAvailable: boolean,
-  ) {
-    const prod = await this.productService.createProduct(
-      prodName,
-      prodPrice,
-      prodAvailable,
-    );
-
+  async postProduct(@Body() prodDTO: Product) {
+    let prod;
+    try {
+      prod = await this.productService.createProduct(
+        prodDTO.name,
+        prodDTO.price,
+        prodDTO.available,
+      );
+    } catch (e) {
+      throw new BadRequestException();
+    }
     return prod;
   }
 
@@ -40,17 +41,16 @@ export class ProductController {
   }
 
   @Put()
-  async updateProduct(
-    @Body('id') prodId: string,
-    @Body('name') prodName: string,
-    @Body('price') prodPrice: number,
-    @Body('available') prodAvailable: boolean,
-  ) {
-    await this.productService.updateProduct(
-      prodId,
-      prodName,
-      prodPrice,
-      prodAvailable,
-    );
+  async updateProduct(@Body() prodDTO: Product) {
+    try {
+      await this.productService.updateProduct(
+        prodDTO.id,
+        prodDTO.name,
+        prodDTO.price,
+        prodDTO.available,
+      );
+    } catch (e) {
+      throw new BadRequestException();
+    }
   }
 }
